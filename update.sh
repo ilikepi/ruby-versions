@@ -15,7 +15,7 @@ case "$ruby" in
 	ruby)
 		version_family="${version:0:3}"
 
-		exts=(tar.gz tar.bz2 tar.xz zip)
+		exts=(tar.gz tar.bz2 zip)
 		downloads_url="http://cache.ruby-lang.org/pub/ruby/"
 		;;
 	mruby)
@@ -60,10 +60,11 @@ for ext in "${exts[@]}"; do
 			;;
 	esac
 
-	wget -O "$archive" "$url"
+	curl -f -L -C - -o "$archive" "$url"
 
 	for algorithm in md5 sha1 sha256 sha512; do
-		${algorithm}sum "$archive" >> "../$ruby/checksums.$algorithm"
+                digest=$(openssl dgst -${algorithm} "$archive" | cut -f2 -d' ')
+                echo "${digest}  ${archive}" >> "../$ruby/checksums.$algorithm"
 	done
 done
 
